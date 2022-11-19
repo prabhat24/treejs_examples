@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			// Our Javascript will go here.
+
+            // set up the environment
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            camera.position.set(0, 0, 100);
+            camera.lookAt(0, 0, 0);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+            const color = 0xFFFFFF;
+            const intensity = 3;
+            const light = new THREE.PointLight(color, intensity);
+            scene.add(light);
+            // set up the scene
+            // an array of objects whose rotation to update
+            const objects = [];
+            
+            // solarSystem
+            const solarSystem = new THREE.Object3D();
+            scene.add(solarSystem);
+            objects.push(solarSystem);
+
+            // sun
+            const radius_sun = 1;
+            const widthSegments = 6;
+            const heightSegments = 6;
+            const sphereGeometry = new THREE.SphereGeometry(
+                radius_sun, widthSegments, heightSegments);
+            
+            const sunMaterial = new THREE.MeshPhongMaterial({emissive: 0xFFFF00});
+            const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
+            sunMesh.scale.set(5, 5, 5);  // make the sun large
+            solarSystem.add(sunMesh);
+            objects.push(sunMesh);
+
+            // earthOrbit
+            const earthOrbit = new THREE.Object3D();
+            earthOrbit.position.x = -20
+            solarSystem.add(earthOrbit);
+            objects.push(earthOrbit);
+
+            // earth
+            const earthMaterial = new THREE.MeshPhongMaterial({color: 0x2233FF, emissive: 0x112244});
+            const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial);
+            earthMesh.scale.set(0.5, 0.5, 0.5); 
+            earthMesh.position.x = -20;
+
+            solarSystem.add(earthMesh);
+            objects.push(earthMesh);
+
+
+            //moon orbit
+            const moonOrbit = new THREE.Object3D();
+            earthOrbit.add(moonOrbit);
+            objects.push(moonOrbit);
+
+            // moon
+            const moonMaterial = new THREE.MeshPhongMaterial({color: 0x778ba5, emissive: 0x778ba5});
+            const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial);
+            moonMesh.position.x = -2;
+            moonMesh.scale.set(0.25, 0.25, 0.25);
+            earthOrbit.add(moonMesh);
+            objects.push(moonMesh);
+
+            // animate
+            function animate() {
+                requestAnimationFrame( animate );
+                objects.forEach((obj) => {
+                    obj.rotation.z += 0.01;
+                    });
+                renderer.render( scene, camera );
+            }
+            animate();
+		</script>
+	</body>
+</html>
