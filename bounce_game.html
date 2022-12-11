@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script type="module">
+            import * as THREE from "./js/three.module.js";
+			// Our Javascript will go here.
+            var time_pressed = 0.1
+            var ball_speedx = 0
+            var ball_speedy = 0
+            var ball_radius = 1
+            // set up the environment
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            camera.position.z = 50;
+            camera.position.y = 0
+            camera.lookAt(0, 0, 0)
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
+
+            // set up the scene
+            var geometry = new THREE.SphereGeometry( ball_radius, 64, 32 );
+			var material = new THREE.MeshBasicMaterial( { color: 0xFF0000 } );
+			const ball = new THREE.Mesh( geometry, material );
+
+            var box_x_height = 30000
+            var box_y_height = 200
+            var timesToRepeatHorizontally = box_x_height / 50
+            var timesToRepeatVertically = box_x_height / 25
+            var loader = new THREE.TextureLoader();
+            var texture = loader.load("grass-textures.jpg")
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(150, 3);
+            var material = new THREE.MeshBasicMaterial({
+                map: texture
+                });
+            var geometry = new THREE.BoxGeometry( box_x_height, box_y_height, 2 );
+			const plane = new THREE.Mesh( geometry, material );
+            scene.add(plane);
+            plane.position.set(0, 0 - ball_radius - (box_y_height/2), 0);
+			scene.add( ball );
+            scene.background = new THREE.Color( 0xFFFF33  );
+            
+            var mine_loader = new THREE.TextureLoader();
+            var mine_texture = loader.load("mace-head.png")
+            mine_texture.wrapS = THREE.RepeatWrapping;
+            mine_texture.wrapT = THREE.RepeatWrapping;
+            var unit_box_length = 4
+            var unit_box_breadth = 4 
+            function spawn_obstacles(x, y, dx, dy) {
+                mine_texture.repeat.set(dx / unit_box_length, dy/unit_box_breadth)
+                var material = new THREE.MeshBasicMaterial({
+                        map: mine_texture
+                    });
+                var geometry = new THREE.BoxGeometry( dx, dy, 2 );
+                var mine = new THREE.Mesh( geometry, material );
+                scene.add(mine);
+                mine.position.set(x, y, 0);
+            }
+
+            spawn_obstacles(10, 3, unit_box_length * 2, unit_box_breadth * 4)
+            spawn_obstacles(40, 3, unit_box_length * 2, unit_box_breadth * 4)
+            spawn_obstacles(90, 1, unit_box_length * 2, unit_box_breadth * 4)
+            animate
+            function animate() {
+                requestAnimationFrame( animate );
+                // to change the position of the ball
+                ball.position.x += ball_speedx
+                ball.position.y += ball_speedy
+                camera.position.x = ball.position.x + 60
+                // console.log(ball.position.x, ball.position.y)
+                if (ball_speedy > 0){
+                    ball_speedy -= 1.2
+                }
+                if (ball.position.y < 0) {
+                    ball.position.y = 0
+                    ball_speedy = 0
+                }
+                if (ball_speedx > 0) {
+                    ball_speedx -= 0.001
+                    if (ball_speedx < 0){
+                        ball_speedx = 0
+                    }
+                }
+                else if (ball_speedx < 0) {
+                    ball_speedx += 0.001
+                    if (ball_speedx > 0){
+                        ball_speedx = 0
+                    }
+                }
+                renderer.render( scene, camera );
+            }
+            animate();
+
+
+            // events
+            document.onkeydown = function(e) {
+                if (e.keyCode == 37) {
+                    ball_speedx -= time_pressed
+                }
+                else if (e.keyCode == 39) {
+                    ball_speedx += time_pressed
+                }
+                else if (e.keyCode == 38) {
+                    if (ball_speedy == 0){
+                        ball_speedy = 8
+                    }
+                }
+                else if (e.keyCode == 40) {
+                    // ball.position.y -= ball_speed
+                }
+
+            }
+            // onmousemove = function(e){
+            //     let vector = new THREE.Vector3();
+            //     vector.set( ((e.clientX/window.innerWidth) - 60), (e.clientY/window.innerHeight) ,0);
+            //     vector.unproject(camera);
+            //     console.log(vector)
+            //     console.log(ball.position.x, ball.position.y)
+            // }
+		</script>
+	</body>
+</html>
